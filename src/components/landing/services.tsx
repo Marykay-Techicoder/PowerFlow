@@ -37,7 +37,7 @@ const features = [
     description: "Whether you provide Solar, Estate Electricity, Water, or Internet, PowerFlow handles the billing and control.",
     icon: Drop,
     color: "var(--color-primary)",
-    bg: "bg-blue-100"
+    bg: "#dbeafe"
   },
   {
     name: "Instant Activation",

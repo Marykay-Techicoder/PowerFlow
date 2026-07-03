@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* ─── Notion/Linear-Inspired Design System ─────────────────── */
+/* ─── PowerFlow Design System ──────────────────────────────── */
 
 @theme {
   /* ── Background ────────────────────────────────────── */
@@ -22,21 +22,24 @@
   --color-text-tertiary: #9b9b9b;
   --color-text-inverse: #ffffff;
 
-  /* ── Accent (Single accent — trustworthy blue) ─────── */
-  --color-accent: #2c5aed;
-  --color-accent-hover: #2249c9;
+  /* ── Accent (Indigo brand) ─────────────────────────── */
+  --color-accent: #4f46e5;
+  --color-accent-hover: #4338ca;
   --color-accent-light: #eef2ff;
-  --color-accent-text: #1e40af;
+  --color-accent-text: #3730a3;
 
-  /* ── Status Colors (Muted, not neon) ───────────────── */
-  --color-success: #2d8a4e;
-  --color-success-light: #edf7ed;
-  --color-warning: #c47d0a;
-  --color-warning-light: #fef6e7;
-  --color-danger: #c4320a;
-  --color-danger-light: #fef0ec;
-  --color-info: #2c5aed;
-  --color-info-light: #eef2ff;
+  /* ── Status Colors ─────────────────────────────────── */
+  --color-success: #10b981;
+  --color-success-light: #d1fae5;
+  --color-warning: #f59e0b;
+  --color-warning-light: #fef3c7;
+  --color-danger: #ef4444;
+  --color-danger-light: #fee2e2;
+  --color-info: #3b82f6;
+  --color-info-light: #dbeafe;
+
+  /* ── Secondary brand blue ──────────────────────────── */
+  --color-primary: #2563eb;
 
   /* ── Shadows ───────────────────────────────────────── */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);
@@ -62,60 +65,21 @@
 
 * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 html {
   font-size: 16px;
+  scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-inter, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
   color: var(--color-text-primary);
   background-color: var(--color-bg);
-  font-size: 0.875rem;
   line-height: 1.6;
   letter-spacing: -0.011em;
-}
-
-/* ─── Typography ───────────────────────────────────────────── */
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.3;
-}
-
-h1 {
-  font-size: 1.875rem;
-}
-
-h2 {
-  font-size: 1.5rem;
-}
-
-h3 {
-  font-size: 1.25rem;
-}
-
-h4 {
-  font-size: 1rem;
-}
-
-h5 {
-  font-size: 0.875rem;
-}
-
-h6 {
-  font-size: 0.8125rem;
 }
 
 /* ─── Scrollbar (Notion-style) ─────────────────────────────── */
@@ -153,7 +117,7 @@ h6 {
   color: var(--color-accent-text);
 }
 
-/* ─── Layout Utilities ─────────────────────────────────────── */
+/* ─── Dashboard Layout Utilities ───────────────────────────── */
 
 .app-shell {
   display: flex;
@@ -614,49 +578,7 @@ h6 {
   margin-top: 4px;
 }
 
-@import "tailwindcss";
-
-/*
-  PowerFlow color tokens.
-  These CSS variables power every var(--color-*) reference in the
-  landing page components (hero, about, services, contact, footer, navbar).
-
-  If your project already has a globals.css with its own :root block,
-  just copy the block below into it instead of importing this whole file.
-*/
-:root {
-  /* Brand accent — primary CTA, links, highlighted headline text */
-  --color-accent: #4f46e5;
-  --color-accent-hover: #4338ca;
-  --color-accent-light: #eef2ff;
-
-  /* Success — recovery, restored service, healthy status */
-  --color-success: #10b981;
-  --color-success-light: #d1fae5;
-
-  /* Warning — grace mode, retry-in-progress states */
-  --color-warning: #f59e0b;
-  --color-warning-light: #fef3c7;
-
-  /* Danger — declines, failed payments, disconnections */
-  --color-danger: #ef4444;
-  --color-danger-light: #fee2e2;
-
-  /* Info — analytics, neutral system messaging */
-  --color-info: #3b82f6;
-  --color-info-light: #dbeafe;
-
-  /* Secondary brand blue — multi-utility / water / internet */
-  --color-primary: #2563eb;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
-}
+/* ─── Reduced Motion ───────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
   html {
