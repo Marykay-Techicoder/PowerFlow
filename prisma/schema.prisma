@@ -1,0 +1,188 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Auth Models (Better Auth) ──────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  role          String    @default("provider") // provider | customer
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  sessions Session[]
+  accounts Account[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+}
+
+// ─── Business Models ────────────────────────────────────────
+
+model Customer {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  phone       String
+  address     String?
+  tokenKey    String? // Nomba card token for recurring charges
+  healthScore Int      @default(100)
+  healthGrade String   @default("excellent") // excellent | good | at_risk | critical
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  subscriptions Subscription[]
+  payments      Payment[]
+  notifications Notification[]
+}
+
+model UtilityPlan {
+  id          String   @id @default(cuid())
+  name        String // "Solar Basic", "Solar Premium"
+  description String?
+  type        String // solar | water | internet | electricity
+  amount      Float // Monthly amount in Naira
+  currency    String   @default("NGN")
+  features    String // JSON: ["Lights", "Phone Charging", "AC", "Refrigerator"]
+  gracePolicy String // JSON: {"allowed": ["Lights", "Phone Charging"], "disabled": ["AC", "Refrigerator"]}
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  id              String    @id @default(cuid())
+  customerId      String
+  planId          String
+  status          String    @default("active") // active | grace | retry_scheduled | suspended | restored
+  billingCycle    String    @default("monthly")
+  nextBillingDate DateTime
+  graceExpiresAt  DateTime?
+  graceStartedAt  DateTime?
+  serviceLevel    Int       @default(100) // 0-100 power percentage
+  retryCount      Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  customer Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  plan     UtilityPlan @relation(fields: [planId], references: [id])
+  payments Payment[]
+  retries  RetryAttempt[]
+  events   SubscriptionEvent[]
+}
+
+model Payment {
+  id              String   @id @default(cuid())
+  customerId      String
+  subscriptionId  String
+  amount          Float
+  currency        String   @default("NGN")
+  status          String // success | failed | pending
+  failureReason   String? // insufficient_funds | gateway_timeout | bank_decline | card_expired
+  orderReference  String   @unique
+  nombaTransRef   String? // Nomba transaction reference
+  paymentMethod   String   @default("card") // card | bank_transfer | direct_debit
+  createdAt       DateTime @default(now())
+
+  customer     Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+}
+
+model RetryAttempt {
+  id             String    @id @default(cuid())
+  subscriptionId String
+  attemptNumber  Int // 1, 2, or 3
+  scheduledAt    DateTime
+  executedAt     DateTime?
+  status         String    @default("scheduled") // scheduled | success | failed | cancelled
+  failureReason  String?
+  strategy       String // immediate | salary_cycle | final_recovery
+  reasoning      String // Human-readable: "Scheduled for salary deposit cycle"
+  amount         Float
+  createdAt      DateTime  @default(now())
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+}
+
+model SubscriptionEvent {
+  id             String   @id @default(cuid())
+  subscriptionId String
+  type           String // status_change | payment_success | payment_failed | retry_scheduled | retry_success | retry_failed | grace_entered | grace_expired | service_restored | service_suspended
+  fromStatus     String?
+  toStatus       String?
+  description    String?
+  metadata       String? // JSON extra data
+  createdAt      DateTime @default(now())
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id         String   @id @default(cuid())
+  customerId String
+  channel    String // whatsapp | email | sms
+  type       String // payment_reminder | grace_warning | retry_alert | service_restored | payment_success | payment_failed
+  title      String
+  message    String
+  read       Boolean  @default(false)
+  sentAt     DateTime @default(now())
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+}
+
+model WebhookEvent {
+  id        String   @id @default(cuid())
+  source    String   @default("nomba")
+  eventType String // payment_success | payment_failed | token_created | payment_reversal
+  payload   String // JSON
+  processed Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
