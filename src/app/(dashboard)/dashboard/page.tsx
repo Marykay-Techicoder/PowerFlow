@@ -4,7 +4,7 @@ import { OverviewClient } from "./overview-client";
 export const revalidate = 0; // Disable cache
 
 export default async function DashboardPage() {
-  // Fetch real counts from SQLite database
+  // Fetch real counts from database
   const activeCount = await db.subscription.count({
     where: {
       status: {
